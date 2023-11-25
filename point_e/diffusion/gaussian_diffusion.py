@@ -7,7 +7,7 @@ from typing import Any, Dict, Iterable, Optional, Sequence, Union
 
 import numpy as np
 import torch as th
-
+import os
 
 def get_beta_schedule(beta_schedule, *, beta_start, beta_end, num_diffusion_timesteps):
     """
@@ -254,6 +254,15 @@ class GaussianDiffusion:
         )
         return posterior_mean, posterior_variance, posterior_log_variance_clipped
 
+    def save_tensor_with_incremented_index(self, tensor, base_filename):
+        index = 0
+        while True:
+            filename = f"{base_filename}_{index}.pth"
+            if not os.path.exists(filename):
+                th.save(tensor, filename)
+                break
+            index += 1
+
     def p_mean_variance(
         self, model, x, t, clip_denoised=False, denoised_fn=None, model_kwargs=None
     ):
@@ -283,6 +292,7 @@ class GaussianDiffusion:
         B, C = x.shape[:2]
         assert t.shape == (B,)
         model_output = model(x, t, **model_kwargs)
+        # self.save_tensor_with_incremented_index(model_output, 'my_tensor.pth')
         if isinstance(model_output, tuple):
             model_output, extra = model_output
         else:

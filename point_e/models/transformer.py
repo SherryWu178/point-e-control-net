@@ -248,8 +248,12 @@ class CLIPImagePointDiffusionTransformer(PointDiffusionTransformer):
         )
         self.cond_drop_prob = cond_drop_prob
 
+        print("CLIPImagePointDiffusionTransformer")
+
     def cached_model_kwargs(self, batch_size: int, model_kwargs: Dict[str, Any]) -> Dict[str, Any]:
+        print("cached_model_kwargs")
         with torch.no_grad():
+            print("jj")
             return dict(embeddings=self.clip(batch_size, **model_kwargs))
 
     def forward(
@@ -268,7 +272,23 @@ class CLIPImagePointDiffusionTransformer(PointDiffusionTransformer):
         :param embeddings: a batch of CLIP embeddings to condition on.
         :return: an [N x C' x T] tensor.
         """
+
+        print("forward")
         assert x.shape[-1] == self.n_ctx
+        if images is not None:
+            print("images is not None", images.shape)
+        else:
+            print("None")
+
+        if texts is not None:
+            print("texts", texts)
+        else:
+            print("None")
+
+        if embeddings is not None:
+            print("embeddings", embeddings)
+        else:
+            print("None")
 
         t_embed = self.time_embed(timestep_embedding(t, self.backbone.width))
         clip_out = self.clip(batch_size=len(x), images=images, texts=texts, embeddings=embeddings)
